@@ -44,17 +44,24 @@ func (s *Service) HandleIncomingTwilioSMS(w http.ResponseWriter, r *http.Request
 	})
 
 	go func() {
-		c, _ := s.Repository.GetConversation(userID, conversationID)
+		c, err := s.Repository.GetConversation(userID, conversationID)
+		if err != nil {
+			fmt.Println(err)
+		}
 		fact := s.GetThoriumFact(context.TODO(), c)
 		botRole := model.MessageRoleBot
-		s.Repository.AddToConversation(userID, conversationID, model.Message{
+		err = s.Repository.AddToConversation(userID, conversationID, model.Message{
 			ID:   newULID(),
 			Body: fact,
 			Role: &botRole,
 		})
+		if err != nil {
+			fmt.Println(err)
+		}
 	}()
 
 	// unmarshal from request body:
 	// s.Repository.GetUser(
-	w.Write([]byte("Hello, World!!"))
+	//w.Write([]byte("Hello, World!!"))
+	w.WriteHeader(http.StatusOK)
 }
