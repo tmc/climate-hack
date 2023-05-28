@@ -2,16 +2,161 @@
 
 package model
 
+import (
+	"fmt"
+	"io"
+	"strconv"
+)
+
+// Input for the continueConversation mutation.
+type ContinueConversationInput struct {
+	// The ID of the conversation to continue.
+	ConversationID string `json:"conversationId"`
+	// The message to send in the conversation.
+	Body string `json:"body"`
+}
+
+// The output of the continueConversation mutation.
+type ContinueConversationPayload struct {
+	// The conversation that was continued.
+	Conversation *Conversation `json:"conversation"`
+}
+
+// A conversation between a user and a bot.
+type Conversation struct {
+	// Unique identifier for the conversation.
+	ID string `json:"id"`
+	// Messages in the conversation.
+	Messages *MessageConnection `json:"messages"`
+}
+
+// A connection to a list of items.
+type ConversationConnection struct {
+	// Information to aid in pagination.
+	PageInfo *PageInfo `json:"pageInfo"`
+	// A list of edges.
+	Edges []*ConversationEdge `json:"edges,omitempty"`
+	// A flattened list of the nodes.
+	Nodes []*Conversation `json:"nodes,omitempty"`
+}
+
+// An edge in a connection.
+type ConversationEdge struct {
+	// The item at the end of the edge.
+	Node *Conversation `json:"node"`
+	// A cursor for use in pagination.
+	Cursor string `json:"cursor"`
+}
+
+// Input for the informNonBeliver mutation.
 type InformNonBeliverInput struct {
+	// The phone number of the non-believer.
 	Phone string `json:"phone"`
+	// Any special considerations for this message.
+	SpecialConsiderations *string `json:"specialConsiderations,omitempty"`
 }
 
+// The output of the informNonBeliver mutation.
 type InformNonBeliverPayload struct {
-	User    *User  `json:"user"`
-	Message string `json:"message"`
+	// The conversation that was started.
+	Conversation *Conversation `json:"conversation"`
 }
 
-type User struct {
-	ID    string `json:"id"`
+// A message in a conversation.
+type Message struct {
+	// Unique identifier for the message.
+	ID string `json:"id"`
+	// The conversation this message is part of.
+	Conversation *Conversation `json:"conversation"`
+	// The time this message was created.
+	CreatedAt string `json:"createdAt"`
+	// The content of the message.
+	Body string `json:"body"`
+	// The role of the message sender.
+	Role *MessageRole `json:"role,omitempty"`
+}
+
+type MessageConnection struct {
+	PageInfo *PageInfo      `json:"pageInfo"`
+	Edges    []*MessageEdge `json:"edges,omitempty"`
+	Nodes    []*Message     `json:"nodes,omitempty"`
+}
+
+type MessageEdge struct {
+	Node   *Message `json:"node"`
+	Cursor string   `json:"cursor"`
+}
+
+// Information about pagination in a connection.
+type PageInfo struct {
+	// When paginating forwards, the cursor to continue.
+	EndCursor *string `json:"endCursor,omitempty"`
+	// When paginating forwards, are there more items?
+	HasNextPage bool `json:"hasNextPage"`
+}
+
+// Input for the startConversation mutation.
+type StartConversationInput struct {
+	// The phone number to start a conversation with.
 	Phone string `json:"phone"`
+	// The initial message in the conversation.
+	Body string `json:"body"`
+}
+
+// The output of the startConversation mutation.
+type StartConversationPayload struct {
+	// The conversation that was started.
+	Conversation *Conversation `json:"conversation"`
+}
+
+// A user in the ThoriumFacts system.
+type User struct {
+	// Unique identifier for the user.
+	ID string `json:"id"`
+	// User's phone number.
+	Phone string `json:"phone"`
+	// Conversations the user has been part of.
+	Messages *ConversationConnection `json:"messages"`
+}
+
+// The role of the message sender.
+type MessageRole string
+
+const (
+	MessageRoleUser MessageRole = "USER"
+	MessageRoleBot  MessageRole = "BOT"
+)
+
+var AllMessageRole = []MessageRole{
+	MessageRoleUser,
+	MessageRoleBot,
+}
+
+func (e MessageRole) IsValid() bool {
+	switch e {
+	case MessageRoleUser, MessageRoleBot:
+		return true
+	}
+	return false
+}
+
+func (e MessageRole) String() string {
+	return string(e)
+}
+
+func (e *MessageRole) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = MessageRole(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid MessageRole", str)
+	}
+	return nil
+}
+
+func (e MessageRole) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

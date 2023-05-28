@@ -6,7 +6,6 @@ require (
 	github.com/99designs/gqlgen v0.17.31
 	github.com/joho/godotenv v1.5.1
 	github.com/redis/go-redis/v9 v9.0.4
-	github.com/tailor-inc/graphql v0.3.0
 	github.com/tmc/langchaingo v0.0.0-20230527005107-54c6782c6080
 	github.com/twilio/twilio-go v1.7.1
 	github.com/vektah/gqlparser/v2 v2.5.1
