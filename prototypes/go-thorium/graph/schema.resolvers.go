@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"go-thorium/graph/model"
+	"time"
 )
 
 // InformNonBeliver is the resolver for the informNonBeliver field.
@@ -26,12 +27,12 @@ func (r *mutationResolver) InformNonBeliver(ctx context.Context, input model.Inf
 
 // StartConversation is the resolver for the startConversation field.
 func (r *mutationResolver) StartConversation(ctx context.Context, input model.StartConversationInput) (*model.StartConversationPayload, error) {
-	panic(fmt.Errorf("not implemented: StartConversation - startConversation"))
+	return nil, fmt.Errorf("not implemented: StartConversation - startConversation")
 }
 
 // ContinueConversation is the resolver for the continueConversation field.
 func (r *mutationResolver) ContinueConversation(ctx context.Context, input model.ContinueConversationInput) (*model.ContinueConversationPayload, error) {
-	panic(fmt.Errorf("not implemented: ContinueConversation - continueConversation"))
+	return nil, fmt.Errorf("not implemented: ContinueConversation - continueConversation")
 }
 
 // Me is the resolver for the me field.
@@ -44,7 +45,19 @@ func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 
 // MessageAdded is the resolver for the messageAdded field.
 func (r *subscriptionResolver) MessageAdded(ctx context.Context, conversationID string) (<-chan *model.Message, error) {
-	panic(fmt.Errorf("not implemented: MessageAdded - messageAdded"))
+	msgs := make(chan *model.Message)
+	go func() {
+		for {
+			_id++
+			id := fmt.Sprint(_id)
+			msgs <- &model.Message{
+				ID:   id,
+				Body: "Hello World " + id,
+			}
+			time.Sleep(time.Second)
+		}
+	}()
+	return msgs, nil
 }
 
 // Mutation returns MutationResolver implementation.
