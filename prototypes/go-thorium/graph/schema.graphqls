@@ -1,0 +1,71 @@
+# ThoriumFacts Schema
+# -------------------
+# This is the GraphQL schema for ThoriumFacts. It is used to define the
+# types and queries that are available to the client. It is also used to
+# generate the documentation for the API.
+
+type Query {
+  me: User!
+}
+
+type Mutation {
+  informNonBeliver(input: InformNonBeliverInput!): InformNonBeliverPayload!
+  startConversation(input: StartConversationInput!): StartConversationPayload!
+  continueConversation(input: ContinueConversationInput!): ContinueConversationPayload!
+}
+
+type User {
+  id: ID!
+  phone: String!
+  messages: [Conversation!]!
+}
+
+type Conversation {
+  id: ID!
+  messages: [Message!]!
+}
+
+subscription MessageAdded {
+  messageAdded(conversationId: ID!): Message!
+}
+
+type Message {
+  id: ID!
+  conversation: Conversation!
+  createdAt: String!
+  body: String!
+  role: MessageRole
+}
+
+enum MessageRole {
+  USER
+  BOT
+}
+
+input InformNonBeliverInput {
+  phone: String!
+  specialConsiderations: String
+}
+
+type InformNonBeliverPayload {
+  conversation: Conversation!
+}
+
+input StartConversationInput {
+  phone: String!
+  body: String!
+}
+
+type StartConversationPayload {
+  conversation: Conversation!
+}
+
+input ContinueConversationInput {
+  conversationId: ID!
+  body: String!
+}
+
+type ContinueConversationPayload {
+  conversation: Conversation!
+}
+
