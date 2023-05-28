@@ -156,7 +156,7 @@
             v-else-if="active_page == 'conversation'"
             class="max-w-6xl mx-auto pt-12"
           >
-            <Conversation />
+            <Conversation id="data.informNonBeliver.conversation.id" />
           </div>
         </transition>
 
@@ -211,11 +211,13 @@ let submittedFormData = ref(null);
 const handleFormSubmit = async (formData) => {
   submittedFormData.value = formData;
   const variables = {
-    phone: formData.phone,
-    name: formData.name,
+    phone: "9196275548",
+    name: "allison",
     specialConsiderations: formData.other_info
   };
-  sendText(variables);
+  let data = await sendText(variables);
+  console.log(data)
+  console.log(data.informNonBeliver)
   active_page.value = "conversation";
 };
 

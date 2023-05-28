@@ -17,8 +17,20 @@
         <div class="col-start-2 col-span-4 bg-gray-800 px-4 py-2 rounded">
           <h4 class="text-sm text-gray-400">ThoriumGPT</h4>
           <p>Lorem Ipsum Dolor sit salt reactor.</p>
+          ID: {{ id }}
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<script>
+  import { defineProps } from 'vue'
+
+  const props = defineProps({
+  id: {
+    type: String,
+    required: true,
+  },
+})
+</script>
