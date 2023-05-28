@@ -1,71 +1,154 @@
-# ThoriumFacts Schema
-# -------------------
-# This is the GraphQL schema for ThoriumFacts. It is used to define the
-# types and queries that are available to the client. It is also used to
-# generate the documentation for the API.
+"""
+This is the GraphQL schema for ThoriumFacts. It defines the
+types and queries available to the client, and is used to
+generate the API's documentation.
+"""
 
 type Query {
+  """
+  Fetches the current user.
+  """
   me: User!
 }
 
 type Mutation {
+  """
+  Sends a message to a non-believer.
+  """
   informNonBeliver(input: InformNonBeliverInput!): InformNonBeliverPayload!
+
+  """
+  Starts a conversation with a user.
+  """
   startConversation(input: StartConversationInput!): StartConversationPayload!
+
+  """
+  Continues an existing conversation.
+  """
   continueConversation(input: ContinueConversationInput!): ContinueConversationPayload!
 }
 
+"""
+A user in the ThoriumFacts system.
+"""
 type User {
+  "Unique identifier for the user."
   id: ID!
+
+  "User's phone number."
   phone: String!
-  messages: [Conversation!]!
+
+  "Conversations the user has been part of."
+  conversations: [Conversation!]!
 }
 
+"""
+A conversation between a user and a bot.
+"""
 type Conversation {
+  "Unique identifier for the conversation."
   id: ID!
+
+  "Messages in the conversation."
   messages: [Message!]!
 }
 
-subscription MessageAdded {
+type Subscription {
+  """
+  Subscribes to new messages in a conversation.
+  """
   messageAdded(conversationId: ID!): Message!
 }
 
+"""
+A message in a conversation.
+"""
 type Message {
+  "Unique identifier for the message."
   id: ID!
+
+  "The conversation this message is part of."
   conversation: Conversation!
-  createdAt: String!
+
+  "The time this message was created."
+  createdAt: DateTime!
+
+  "The content of the message."
   body: String!
+
+  "The role of the message sender."
   role: MessageRole
 }
 
+"""
+The role of the message sender.
+"""
 enum MessageRole {
   USER
   BOT
 }
 
+"""
+Input for the informNonBeliver mutation.
+"""
 input InformNonBeliverInput {
+  "The phone number of the non-believer."
   phone: String!
+
+  "Any special considerations for this message."
   specialConsiderations: String
 }
 
+"""
+The output of the informNonBeliver mutation.
+"""
 type InformNonBeliverPayload {
+  "The conversation that was started."
   conversation: Conversation!
 }
 
+"""
+Input for the startConversation mutation.
+"""
 input StartConversationInput {
+  "The phone number to start a conversation with."
   phone: String!
+
+  "The initial message in the conversation."
   body: String!
 }
 
+"""
+The output of the startConversation mutation.
+"""
 type StartConversationPayload {
+  "The conversation that was started."
   conversation: Conversation!
 }
 
+"""
+Input for the continueConversation mutation."""
 input ContinueConversationInput {
+  "The User ID of the conversation to continue."
+  userId: ID!
+
+  "The ID of the conversation to continue."
   conversationId: ID!
+
+  "The message to send in the conversation."
   body: String!
 }
 
+"""
+The output of the continueConversation mutation.
+"""
 type ContinueConversationPayload {
+  "The conversation that was continued."
   conversation: Conversation!
 }
+
+"""
+A custom scalar type for DateTime values.
+"""
+scalar DateTime
 

@@ -11,9 +11,9 @@ import (
 	"os"
 
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
-	"github.com/tailor-inc/graphql/playground"
 	"github.com/tmc/langchaingo/llms/openai"
 	"go.uber.org/zap"
 )
@@ -72,7 +72,7 @@ func newRedisClient() (*redis.Client, error) {
 	redisURL := os.Getenv("REDIS_URL")
 	if redisURL == "" {
 		redisURL = "redis://localhost:6379"
-		log.Print("redis url not set, using default of", redisURL)
+		log.Println("redis url not set, using default of", redisURL)
 	}
 	opts, err := redis.ParseURL(redisURL)
 	if err != nil {
