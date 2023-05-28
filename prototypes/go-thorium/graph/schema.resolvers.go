@@ -14,9 +14,10 @@ import (
 func (r *mutationResolver) InformNonBeliver(ctx context.Context, input model.InformNonBeliverInput) (*model.InformNonBeliverPayload, error) {
 	_id++
 	fact := r.service.GetThoriumFact(ctx)
-	// if err := r.service.SendSMS(ctx, input.Phone, fact); err != nil {
-	// 	return nil, err
-	// }
+	// TODO: we should probably have an easy way to disable sending SMS
+	if err := r.service.SendSMS(ctx, input.Phone, fact); err != nil {
+		return nil, err
+	}
 	r.service.Repository.CreateUser(input.Phone)
 	c, err := r.service.Repository.CreateConversation(input.Phone)
 	if err != nil {
@@ -79,10 +80,4 @@ type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type subscriptionResolver struct{ *Resolver }
 
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
 var _id = 0
