@@ -192,7 +192,7 @@ import { ref } from "vue";
 
 const query = gql`
   mutation informNonBeliever($phone: String!) {
-    informNonBeliver(input: {phone: $phone}) {
+    informNonBeliever(input: { phone: $phone }) {
       conversation {
         id
       }
@@ -209,12 +209,12 @@ let submittedFormData = ref(null);
 const handleFormSubmit = async (formData) => {
   submittedFormData.value = formData;
   const variables = {
-    phone: formData.phone
-  }
-  console.log(query)
-  const { mutate } = await useMutation(query, variables)
+    phone: formData.phone,
+  };
+  console.log(query);
+  const { mutate } = await useMutation(query, variables);
   // Do whatever you need with the data here
-  console.log(formData);
+  console.log(mutate);
   active_page.value = "conversation";
 };
 </script>
