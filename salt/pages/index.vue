@@ -191,8 +191,8 @@ import { ref } from "vue";
 // const { data } = await useAsyncQuery(query, variables);
 
 const sendTextMutation = gql`
-  mutation informNonBeliver($phone: String!) {
-    informNonBeliver(input: { phone: $phone }) {
+  mutation informNonBeliver($phone: String!, $name: String!, $specialConsiderations: String) {
+    informNonBeliver(input: { phone: $phone, name: $name, specialConsiderations: $specialConsiderations }) {
       conversation {
         id
       }
@@ -212,6 +212,8 @@ const handleFormSubmit = async (formData) => {
   submittedFormData.value = formData;
   const variables = {
     phone: formData.phone,
+    name: formData.name,
+    specialConsiderations: formData.other_info
   };
   sendText(variables);
   active_page.value = "conversation";
