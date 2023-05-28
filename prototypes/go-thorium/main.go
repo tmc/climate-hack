@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -31,13 +30,16 @@ func run() error {
 	if err != nil {
 		log.Println("Error loading .env file", err)
 	}
+	if err := sendSMS(*flagToNumber, getThoriumFact()); err != nil {
+		return err
+	}
+	return nil
+}
+
+func sendSMS(to string, body string) error {
 	accountSid := os.Getenv("TWILIO_ACCOUNT_SID")
 	authToken := os.Getenv("TWILIO_AUTH_TOKEN")
 	fromPhone := os.Getenv("TWILIO_PHONE_NUMBER")
-
-	fmt.Println("Account SID: " + accountSid)
-	fmt.Println("Auth Token: " + authToken)
-	fmt.Println("From Phone: " + fromPhone)
 	client := twilio.NewRestClientWithParams(twilio.ClientParams{
 		Username: accountSid,
 		Password: authToken,
@@ -49,12 +51,9 @@ func run() error {
 
 	resp, err := client.Api.CreateMessage(params)
 	if err != nil {
-		fmt.Println("Error sending SMS message: " + err.Error())
-	} else {
-		response, _ := json.Marshal(*resp)
-		fmt.Println("Response: " + string(response))
+		fmt.Println("Error sending SMS message: ", resp)
 	}
-	return nil
+	return err
 }
 
 func getThoriumFact() string {
