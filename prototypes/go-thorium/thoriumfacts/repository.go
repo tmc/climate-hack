@@ -26,8 +26,9 @@ type Repository interface {
 }
 
 type redisRepository struct {
-	client  *redis.Client
-	context context.Context
+	client                    *redis.Client
+	context                   context.Context
+	conversationSubscriptions map[string]chan *model.Message
 }
 
 func newRedisRepository() *redisRepository {
@@ -81,7 +82,10 @@ func (r *redisRepository) CreateConversation(userID string) (*model.Conversation
 	conversation := &model.Conversation{
 		ID: fmt.Sprintf("%v-%d", userID, len(user.Conversations)),
 	}
-	conversationBytes, _ := json.Marshal(conversation)
+	conversationBytes, err := json.Marshal(conversation)
+	if err != nil {
+		return nil, err
+	}
 
 	err = r.client.Set(r.context, "conversation:"+conversation.ID, conversationBytes, 0).Err()
 	if err != nil {
@@ -106,6 +110,9 @@ func (r *redisRepository) GetConversation(userID string, conversationID string) 
 
 	conversation := &model.Conversation{}
 	err = json.Unmarshal([]byte(val), conversation)
+	if err != nil {
+		return nil, err
+	}
 
 	return conversation, err
 }
@@ -120,14 +127,19 @@ func (r *redisRepository) GetConversations(userID string) ([]*model.Conversation
 }
 
 func (r *redisRepository) AddToConversation(userID string, conversationID string, message model.Message) error {
+
 	conversation, err := r.GetConversation(userID, conversationID)
 	if err != nil {
 		return err
 	}
 
 	conversation.Messages = append(conversation.Messages, &message)
-	err = r.client.Set(r.context, "conversation:"+conversationID, conversation, 0).Err()
+
+	c, _ := json.Marshal(conversation)
+
+	err = r.client.Set(r.context, "conversation:"+conversationID, c, 0).Err()
 	if err != nil {
+		fmt.Println("AddToConversation:", err)
 		return err
 	}
 
@@ -143,14 +155,10 @@ func (r *redisRepository) DeleteConversation(userID string, conversationID strin
 	return r.client.Del(r.context, "conversation:"+conversationID).Err()
 }
 
-// func (r *redisRepository) SubscribeToConversation(conversationID string) (*redis.PubSub, error) {
-// 	pubsub := r.client.Subscribe(r.context, "conversation:"+conversationID)
-
-// 	// Check that the subscription is active
-// 	_, err := pubsub.Receive(r.context)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return pubsub, nil
-// }
+func (r *redisRepository) SubscribeToConversation(conversationID string) (<-chan *model.Message, error) {
+	ch, ok := r.conversationSubscriptions[conversationID]
+	if !ok {
+		return nil, fmt.Errorf("conversation %v not found", conversationID)
+	}
+	return ch, nil
+}
