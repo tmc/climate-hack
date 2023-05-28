@@ -70,7 +70,15 @@ func run() error {
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 
-	handler := cors.Default().Handler(mux)
+	// handler := cors.Default().Handler(mux)
+	handler := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "DELETE", "PUT", "OPTIONS"},
+		AllowedHeaders:   []string{"Authorization", "Content-Type"},
+		AllowCredentials: true,
+		Debug:            true,
+	}).Handler(mux)
+
 	return http.ListenAndServe(":"+port, handler)
 }
 
