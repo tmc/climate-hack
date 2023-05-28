@@ -17,6 +17,8 @@ import (
 type Service struct {
 	llm         llms.ChatLLM
 	redisClient *redis.Client
+
+	Repository Repository
 }
 
 // NewService creates a new ThoriumFacts service.
@@ -24,6 +26,7 @@ func NewService(llm llms.ChatLLM, redisClient *redis.Client) *Service {
 	return &Service{
 		llm:         llm,
 		redisClient: redisClient,
+		Repository:  newInMemoryRepository(),
 	}
 }
 

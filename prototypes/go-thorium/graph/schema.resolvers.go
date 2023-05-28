@@ -8,20 +8,28 @@ import (
 	"context"
 	"fmt"
 	"go-thorium/graph/model"
-	"time"
 )
 
 // InformNonBeliver is the resolver for the informNonBeliver field.
 func (r *mutationResolver) InformNonBeliver(ctx context.Context, input model.InformNonBeliverInput) (*model.InformNonBeliverPayload, error) {
 	_id++
 	fact := r.service.GetThoriumFact(ctx)
-	if err := r.service.SendSMS(ctx, input.Phone, fact); err != nil {
-		return nil, err
+	// if err := r.service.SendSMS(ctx, input.Phone, fact); err != nil {
+	// 	return nil, err
+	// }
+	r.service.Repository.CreateUser(input.Phone)
+	c, err := r.service.Repository.CreateConversation(input.Phone)
+	if err != nil {
+		return nil, fmt.Errorf("could not create conversation: %w", err)
 	}
+	if err := r.service.Repository.AddToConversation(input.Phone, c.ID, model.Message{
+		Body: fact,
+	}); err != nil {
+		return nil, fmt.Errorf("could not add message to conversation: %w", err)
+	}
+	c, _ = r.service.Repository.GetConversation(input.Phone, c.ID)
 	return &model.InformNonBeliverPayload{
-		Conversation: &model.Conversation{
-			ID: fmt.Sprint(_id),
-		},
+		Conversation: c,
 	}, nil
 }
 
@@ -32,7 +40,17 @@ func (r *mutationResolver) StartConversation(ctx context.Context, input model.St
 
 // ContinueConversation is the resolver for the continueConversation field.
 func (r *mutationResolver) ContinueConversation(ctx context.Context, input model.ContinueConversationInput) (*model.ContinueConversationPayload, error) {
-	return nil, fmt.Errorf("not implemented: ContinueConversation - continueConversation")
+	err := r.service.Repository.AddToConversation(input.UserID, input.ConversationID, model.Message{
+		Body: input.Body,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("could not add message to conversation: %w", err)
+	}
+	c, _ := r.service.Repository.GetConversation(input.UserID, input.ConversationID)
+
+	return &model.ContinueConversationPayload{
+		Conversation: c,
+	}, nil
 }
 
 // Me is the resolver for the me field.
@@ -45,19 +63,7 @@ func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
 
 // MessageAdded is the resolver for the messageAdded field.
 func (r *subscriptionResolver) MessageAdded(ctx context.Context, conversationID string) (<-chan *model.Message, error) {
-	msgs := make(chan *model.Message)
-	go func() {
-		for {
-			_id++
-			id := fmt.Sprint(_id)
-			msgs <- &model.Message{
-				ID:   id,
-				Body: "Hello World " + id,
-			}
-			time.Sleep(time.Second)
-		}
-	}()
-	return msgs, nil
+	return r.service.Repository.SubscribeToConversation(conversationID)
 }
 
 // Mutation returns MutationResolver implementation.

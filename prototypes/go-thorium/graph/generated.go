@@ -56,17 +56,6 @@ type ComplexityRoot struct {
 		Messages func(childComplexity int) int
 	}
 
-	ConversationConnection struct {
-		Edges    func(childComplexity int) int
-		Nodes    func(childComplexity int) int
-		PageInfo func(childComplexity int) int
-	}
-
-	ConversationEdge struct {
-		Cursor func(childComplexity int) int
-		Node   func(childComplexity int) int
-	}
-
 	InformNonBeliverPayload struct {
 		Conversation func(childComplexity int) int
 	}
@@ -79,26 +68,10 @@ type ComplexityRoot struct {
 		Role         func(childComplexity int) int
 	}
 
-	MessageConnection struct {
-		Edges    func(childComplexity int) int
-		Nodes    func(childComplexity int) int
-		PageInfo func(childComplexity int) int
-	}
-
-	MessageEdge struct {
-		Cursor func(childComplexity int) int
-		Node   func(childComplexity int) int
-	}
-
 	Mutation struct {
 		ContinueConversation func(childComplexity int, input model.ContinueConversationInput) int
 		InformNonBeliver     func(childComplexity int, input model.InformNonBeliverInput) int
 		StartConversation    func(childComplexity int, input model.StartConversationInput) int
-	}
-
-	PageInfo struct {
-		EndCursor   func(childComplexity int) int
-		HasNextPage func(childComplexity int) int
 	}
 
 	Query struct {
@@ -114,9 +87,9 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
-		ID       func(childComplexity int) int
-		Messages func(childComplexity int) int
-		Phone    func(childComplexity int) int
+		Conversations func(childComplexity int) int
+		ID            func(childComplexity int) int
+		Phone         func(childComplexity int) int
 	}
 }
 
@@ -168,41 +141,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Conversation.Messages(childComplexity), true
 
-	case "ConversationConnection.edges":
-		if e.complexity.ConversationConnection.Edges == nil {
-			break
-		}
-
-		return e.complexity.ConversationConnection.Edges(childComplexity), true
-
-	case "ConversationConnection.nodes":
-		if e.complexity.ConversationConnection.Nodes == nil {
-			break
-		}
-
-		return e.complexity.ConversationConnection.Nodes(childComplexity), true
-
-	case "ConversationConnection.pageInfo":
-		if e.complexity.ConversationConnection.PageInfo == nil {
-			break
-		}
-
-		return e.complexity.ConversationConnection.PageInfo(childComplexity), true
-
-	case "ConversationEdge.cursor":
-		if e.complexity.ConversationEdge.Cursor == nil {
-			break
-		}
-
-		return e.complexity.ConversationEdge.Cursor(childComplexity), true
-
-	case "ConversationEdge.node":
-		if e.complexity.ConversationEdge.Node == nil {
-			break
-		}
-
-		return e.complexity.ConversationEdge.Node(childComplexity), true
-
 	case "InformNonBeliverPayload.conversation":
 		if e.complexity.InformNonBeliverPayload.Conversation == nil {
 			break
@@ -245,41 +183,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Message.Role(childComplexity), true
 
-	case "MessageConnection.edges":
-		if e.complexity.MessageConnection.Edges == nil {
-			break
-		}
-
-		return e.complexity.MessageConnection.Edges(childComplexity), true
-
-	case "MessageConnection.nodes":
-		if e.complexity.MessageConnection.Nodes == nil {
-			break
-		}
-
-		return e.complexity.MessageConnection.Nodes(childComplexity), true
-
-	case "MessageConnection.pageInfo":
-		if e.complexity.MessageConnection.PageInfo == nil {
-			break
-		}
-
-		return e.complexity.MessageConnection.PageInfo(childComplexity), true
-
-	case "MessageEdge.cursor":
-		if e.complexity.MessageEdge.Cursor == nil {
-			break
-		}
-
-		return e.complexity.MessageEdge.Cursor(childComplexity), true
-
-	case "MessageEdge.node":
-		if e.complexity.MessageEdge.Node == nil {
-			break
-		}
-
-		return e.complexity.MessageEdge.Node(childComplexity), true
-
 	case "Mutation.continueConversation":
 		if e.complexity.Mutation.ContinueConversation == nil {
 			break
@@ -316,20 +219,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.StartConversation(childComplexity, args["input"].(model.StartConversationInput)), true
 
-	case "PageInfo.endCursor":
-		if e.complexity.PageInfo.EndCursor == nil {
-			break
-		}
-
-		return e.complexity.PageInfo.EndCursor(childComplexity), true
-
-	case "PageInfo.hasNextPage":
-		if e.complexity.PageInfo.HasNextPage == nil {
-			break
-		}
-
-		return e.complexity.PageInfo.HasNextPage(childComplexity), true
-
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
 			break
@@ -356,19 +245,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Subscription.MessageAdded(childComplexity, args["conversationId"].(string)), true
 
+	case "User.conversations":
+		if e.complexity.User.Conversations == nil {
+			break
+		}
+
+		return e.complexity.User.Conversations(childComplexity), true
+
 	case "User.id":
 		if e.complexity.User.ID == nil {
 			break
 		}
 
 		return e.complexity.User.ID(childComplexity), true
-
-	case "User.messages":
-		if e.complexity.User.Messages == nil {
-			break
-		}
-
-		return e.complexity.User.Messages(childComplexity), true
 
 	case "User.phone":
 		if e.complexity.User.Phone == nil {
@@ -717,9 +606,9 @@ func (ec *executionContext) _Conversation_messages(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.MessageConnection)
+	res := resTmp.([]*model.Message)
 	fc.Result = res
-	return ec.marshalNMessageConnection2ᚖgoᚑthoriumᚋgraphᚋmodelᚐMessageConnection(ctx, field.Selections, res)
+	return ec.marshalNMessage2ᚕᚖgoᚑthoriumᚋgraphᚋmodelᚐMessageᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Conversation_messages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -730,252 +619,18 @@ func (ec *executionContext) fieldContext_Conversation_messages(ctx context.Conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "pageInfo":
-				return ec.fieldContext_MessageConnection_pageInfo(ctx, field)
-			case "edges":
-				return ec.fieldContext_MessageConnection_edges(ctx, field)
-			case "nodes":
-				return ec.fieldContext_MessageConnection_nodes(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type MessageConnection", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ConversationConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.ConversationConnection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ConversationConnection_pageInfo(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PageInfo, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.PageInfo)
-	fc.Result = res
-	return ec.marshalNPageInfo2ᚖgoᚑthoriumᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ConversationConnection_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ConversationConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "endCursor":
-				return ec.fieldContext_PageInfo_endCursor(ctx, field)
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ConversationConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.ConversationConnection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ConversationConnection_edges(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Edges, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*model.ConversationEdge)
-	fc.Result = res
-	return ec.marshalOConversationEdge2ᚕᚖgoᚑthoriumᚋgraphᚋmodelᚐConversationEdge(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ConversationConnection_edges(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ConversationConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "node":
-				return ec.fieldContext_ConversationEdge_node(ctx, field)
-			case "cursor":
-				return ec.fieldContext_ConversationEdge_cursor(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type ConversationEdge", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ConversationConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *model.ConversationConnection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ConversationConnection_nodes(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Nodes, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Conversation)
-	fc.Result = res
-	return ec.marshalOConversation2ᚕᚖgoᚑthoriumᚋgraphᚋmodelᚐConversationᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ConversationConnection_nodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ConversationConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
 			case "id":
-				return ec.fieldContext_Conversation_id(ctx, field)
-			case "messages":
-				return ec.fieldContext_Conversation_messages(ctx, field)
+				return ec.fieldContext_Message_id(ctx, field)
+			case "conversation":
+				return ec.fieldContext_Message_conversation(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Message_createdAt(ctx, field)
+			case "body":
+				return ec.fieldContext_Message_body(ctx, field)
+			case "role":
+				return ec.fieldContext_Message_role(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Conversation", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ConversationEdge_node(ctx context.Context, field graphql.CollectedField, obj *model.ConversationEdge) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ConversationEdge_node(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Node, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Conversation)
-	fc.Result = res
-	return ec.marshalNConversation2ᚖgoᚑthoriumᚋgraphᚋmodelᚐConversation(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ConversationEdge_node(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ConversationEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Conversation_id(ctx, field)
-			case "messages":
-				return ec.fieldContext_Conversation_messages(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Conversation", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ConversationEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *model.ConversationEdge) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ConversationEdge_cursor(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Cursor, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ConversationEdge_cursor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ConversationEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, fmt.Errorf("no field named %q was found under type Message", field.Name)
 		},
 	}
 	return fc, nil
@@ -1254,256 +909,6 @@ func (ec *executionContext) fieldContext_Message_role(ctx context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _MessageConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.MessageConnection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MessageConnection_pageInfo(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PageInfo, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.PageInfo)
-	fc.Result = res
-	return ec.marshalNPageInfo2ᚖgoᚑthoriumᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_MessageConnection_pageInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "MessageConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "endCursor":
-				return ec.fieldContext_PageInfo_endCursor(ctx, field)
-			case "hasNextPage":
-				return ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type PageInfo", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _MessageConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.MessageConnection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MessageConnection_edges(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Edges, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*model.MessageEdge)
-	fc.Result = res
-	return ec.marshalOMessageEdge2ᚕᚖgoᚑthoriumᚋgraphᚋmodelᚐMessageEdge(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_MessageConnection_edges(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "MessageConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "node":
-				return ec.fieldContext_MessageEdge_node(ctx, field)
-			case "cursor":
-				return ec.fieldContext_MessageEdge_cursor(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type MessageEdge", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _MessageConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *model.MessageConnection) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MessageConnection_nodes(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Nodes, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*model.Message)
-	fc.Result = res
-	return ec.marshalOMessage2ᚕᚖgoᚑthoriumᚋgraphᚋmodelᚐMessageᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_MessageConnection_nodes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "MessageConnection",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Message_id(ctx, field)
-			case "conversation":
-				return ec.fieldContext_Message_conversation(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Message_createdAt(ctx, field)
-			case "body":
-				return ec.fieldContext_Message_body(ctx, field)
-			case "role":
-				return ec.fieldContext_Message_role(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Message", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _MessageEdge_node(ctx context.Context, field graphql.CollectedField, obj *model.MessageEdge) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MessageEdge_node(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Node, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Message)
-	fc.Result = res
-	return ec.marshalNMessage2ᚖgoᚑthoriumᚋgraphᚋmodelᚐMessage(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_MessageEdge_node(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "MessageEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Message_id(ctx, field)
-			case "conversation":
-				return ec.fieldContext_Message_conversation(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Message_createdAt(ctx, field)
-			case "body":
-				return ec.fieldContext_Message_body(ctx, field)
-			case "role":
-				return ec.fieldContext_Message_role(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Message", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _MessageEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *model.MessageEdge) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_MessageEdge_cursor(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Cursor, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_MessageEdge_cursor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "MessageEdge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Mutation_informNonBeliver(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_informNonBeliver(ctx, field)
 	if err != nil {
@@ -1681,91 +1086,6 @@ func (ec *executionContext) fieldContext_Mutation_continueConversation(ctx conte
 	return fc, nil
 }
 
-func (ec *executionContext) _PageInfo_endCursor(ctx context.Context, field graphql.CollectedField, obj *model.PageInfo) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PageInfo_endCursor(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.EndCursor, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PageInfo_endCursor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PageInfo",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _PageInfo_hasNextPage(ctx context.Context, field graphql.CollectedField, obj *model.PageInfo) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_PageInfo_hasNextPage(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.HasNextPage, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_PageInfo_hasNextPage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "PageInfo",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Query_me(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_me(ctx, field)
 	if err != nil {
@@ -1809,8 +1129,8 @@ func (ec *executionContext) fieldContext_Query_me(ctx context.Context, field gra
 				return ec.fieldContext_User_id(ctx, field)
 			case "phone":
 				return ec.fieldContext_User_phone(ctx, field)
-			case "messages":
-				return ec.fieldContext_User_messages(ctx, field)
+			case "conversations":
+				return ec.fieldContext_User_conversations(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -2166,8 +1486,8 @@ func (ec *executionContext) fieldContext_User_phone(ctx context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _User_messages(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_User_messages(ctx, field)
+func (ec *executionContext) _User_conversations(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_conversations(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2180,7 +1500,7 @@ func (ec *executionContext) _User_messages(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Messages, nil
+		return obj.Conversations, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2192,12 +1512,12 @@ func (ec *executionContext) _User_messages(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.ConversationConnection)
+	res := resTmp.([]*model.Conversation)
 	fc.Result = res
-	return ec.marshalNConversationConnection2ᚖgoᚑthoriumᚋgraphᚋmodelᚐConversationConnection(ctx, field.Selections, res)
+	return ec.marshalNConversation2ᚕᚖgoᚑthoriumᚋgraphᚋmodelᚐConversationᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_User_messages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_User_conversations(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
@@ -2205,14 +1525,12 @@ func (ec *executionContext) fieldContext_User_messages(ctx context.Context, fiel
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "pageInfo":
-				return ec.fieldContext_ConversationConnection_pageInfo(ctx, field)
-			case "edges":
-				return ec.fieldContext_ConversationConnection_edges(ctx, field)
-			case "nodes":
-				return ec.fieldContext_ConversationConnection_nodes(ctx, field)
+			case "id":
+				return ec.fieldContext_Conversation_id(ctx, field)
+			case "messages":
+				return ec.fieldContext_Conversation_messages(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ConversationConnection", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Conversation", field.Name)
 		},
 	}
 	return fc, nil
@@ -3998,13 +3316,22 @@ func (ec *executionContext) unmarshalInputContinueConversationInput(ctx context.
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"conversationId", "body"}
+	fieldsInOrder := [...]string{"userId", "conversationId", "body"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
+		case "userId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+			data, err := ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserID = data
 		case "conversationId":
 			var err error
 
@@ -4176,77 +3503,6 @@ func (ec *executionContext) _Conversation(ctx context.Context, sel ast.Selection
 	return out
 }
 
-var conversationConnectionImplementors = []string{"ConversationConnection"}
-
-func (ec *executionContext) _ConversationConnection(ctx context.Context, sel ast.SelectionSet, obj *model.ConversationConnection) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, conversationConnectionImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("ConversationConnection")
-		case "pageInfo":
-
-			out.Values[i] = ec._ConversationConnection_pageInfo(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "edges":
-
-			out.Values[i] = ec._ConversationConnection_edges(ctx, field, obj)
-
-		case "nodes":
-
-			out.Values[i] = ec._ConversationConnection_nodes(ctx, field, obj)
-
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var conversationEdgeImplementors = []string{"ConversationEdge"}
-
-func (ec *executionContext) _ConversationEdge(ctx context.Context, sel ast.SelectionSet, obj *model.ConversationEdge) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, conversationEdgeImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("ConversationEdge")
-		case "node":
-
-			out.Values[i] = ec._ConversationEdge_node(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "cursor":
-
-			out.Values[i] = ec._ConversationEdge_cursor(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
 var informNonBeliverPayloadImplementors = []string{"InformNonBeliverPayload"}
 
 func (ec *executionContext) _InformNonBeliverPayload(ctx context.Context, sel ast.SelectionSet, obj *model.InformNonBeliverPayload) graphql.Marshaler {
@@ -4328,77 +3584,6 @@ func (ec *executionContext) _Message(ctx context.Context, sel ast.SelectionSet, 
 	return out
 }
 
-var messageConnectionImplementors = []string{"MessageConnection"}
-
-func (ec *executionContext) _MessageConnection(ctx context.Context, sel ast.SelectionSet, obj *model.MessageConnection) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, messageConnectionImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("MessageConnection")
-		case "pageInfo":
-
-			out.Values[i] = ec._MessageConnection_pageInfo(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "edges":
-
-			out.Values[i] = ec._MessageConnection_edges(ctx, field, obj)
-
-		case "nodes":
-
-			out.Values[i] = ec._MessageConnection_nodes(ctx, field, obj)
-
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var messageEdgeImplementors = []string{"MessageEdge"}
-
-func (ec *executionContext) _MessageEdge(ctx context.Context, sel ast.SelectionSet, obj *model.MessageEdge) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, messageEdgeImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("MessageEdge")
-		case "node":
-
-			out.Values[i] = ec._MessageEdge_node(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "cursor":
-
-			out.Values[i] = ec._MessageEdge_cursor(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -4441,38 +3626,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_continueConversation(ctx, field)
 			})
-
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var pageInfoImplementors = []string{"PageInfo"}
-
-func (ec *executionContext) _PageInfo(ctx context.Context, sel ast.SelectionSet, obj *model.PageInfo) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, pageInfoImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("PageInfo")
-		case "endCursor":
-
-			out.Values[i] = ec._PageInfo_endCursor(ctx, field, obj)
-
-		case "hasNextPage":
-
-			out.Values[i] = ec._PageInfo_hasNextPage(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -4625,9 +3778,9 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "messages":
+		case "conversations":
 
-			out.Values[i] = ec._User_messages(ctx, field, obj)
+			out.Values[i] = ec._User_conversations(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -4995,6 +4148,50 @@ func (ec *executionContext) marshalNContinueConversationPayload2ᚖgoᚑthorium�
 	return ec._ContinueConversationPayload(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNConversation2ᚕᚖgoᚑthoriumᚋgraphᚋmodelᚐConversationᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Conversation) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNConversation2ᚖgoᚑthoriumᚋgraphᚋmodelᚐConversation(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNConversation2ᚖgoᚑthoriumᚋgraphᚋmodelᚐConversation(ctx context.Context, sel ast.SelectionSet, v *model.Conversation) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -5003,16 +4200,6 @@ func (ec *executionContext) marshalNConversation2ᚖgoᚑthoriumᚋgraphᚋmodel
 		return graphql.Null
 	}
 	return ec._Conversation(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNConversationConnection2ᚖgoᚑthoriumᚋgraphᚋmodelᚐConversationConnection(ctx context.Context, sel ast.SelectionSet, v *model.ConversationConnection) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._ConversationConnection(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNDateTime2string(ctx context.Context, v interface{}) (string, error) {
@@ -5068,6 +4255,50 @@ func (ec *executionContext) marshalNMessage2goᚑthoriumᚋgraphᚋmodelᚐMessa
 	return ec._Message(ctx, sel, &v)
 }
 
+func (ec *executionContext) marshalNMessage2ᚕᚖgoᚑthoriumᚋgraphᚋmodelᚐMessageᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Message) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNMessage2ᚖgoᚑthoriumᚋgraphᚋmodelᚐMessage(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNMessage2ᚖgoᚑthoriumᚋgraphᚋmodelᚐMessage(ctx context.Context, sel ast.SelectionSet, v *model.Message) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -5076,26 +4307,6 @@ func (ec *executionContext) marshalNMessage2ᚖgoᚑthoriumᚋgraphᚋmodelᚐMe
 		return graphql.Null
 	}
 	return ec._Message(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNMessageConnection2ᚖgoᚑthoriumᚋgraphᚋmodelᚐMessageConnection(ctx context.Context, sel ast.SelectionSet, v *model.MessageConnection) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._MessageConnection(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalNPageInfo2ᚖgoᚑthoriumᚋgraphᚋmodelᚐPageInfo(ctx context.Context, sel ast.SelectionSet, v *model.PageInfo) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._PageInfo(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNStartConversationInput2goᚑthoriumᚋgraphᚋmodelᚐStartConversationInput(ctx context.Context, v interface{}) (model.StartConversationInput, error) {
@@ -5423,196 +4634,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
-}
-
-func (ec *executionContext) marshalOConversation2ᚕᚖgoᚑthoriumᚋgraphᚋmodelᚐConversationᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Conversation) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNConversation2ᚖgoᚑthoriumᚋgraphᚋmodelᚐConversation(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalOConversationEdge2ᚕᚖgoᚑthoriumᚋgraphᚋmodelᚐConversationEdge(ctx context.Context, sel ast.SelectionSet, v []*model.ConversationEdge) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOConversationEdge2ᚖgoᚑthoriumᚋgraphᚋmodelᚐConversationEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	return ret
-}
-
-func (ec *executionContext) marshalOConversationEdge2ᚖgoᚑthoriumᚋgraphᚋmodelᚐConversationEdge(ctx context.Context, sel ast.SelectionSet, v *model.ConversationEdge) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._ConversationEdge(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOMessage2ᚕᚖgoᚑthoriumᚋgraphᚋmodelᚐMessageᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Message) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNMessage2ᚖgoᚑthoriumᚋgraphᚋmodelᚐMessage(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalOMessageEdge2ᚕᚖgoᚑthoriumᚋgraphᚋmodelᚐMessageEdge(ctx context.Context, sel ast.SelectionSet, v []*model.MessageEdge) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOMessageEdge2ᚖgoᚑthoriumᚋgraphᚋmodelᚐMessageEdge(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	return ret
-}
-
-func (ec *executionContext) marshalOMessageEdge2ᚖgoᚑthoriumᚋgraphᚋmodelᚐMessageEdge(ctx context.Context, sel ast.SelectionSet, v *model.MessageEdge) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._MessageEdge(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOMessageRole2ᚖgoᚑthoriumᚋgraphᚋmodelᚐMessageRole(ctx context.Context, v interface{}) (*model.MessageRole, error) {

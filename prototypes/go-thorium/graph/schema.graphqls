@@ -39,43 +39,7 @@ type User {
   phone: String!
 
   "Conversations the user has been part of."
-  messages: ConversationConnection!
-}
-
-"""
-A connection to a list of items.
-"""
-type ConversationConnection {
-  "Information to aid in pagination."
-  pageInfo: PageInfo!
-
-  "A list of edges."
-  edges: [ConversationEdge]
-
-  "A flattened list of the nodes."
-  nodes: [Conversation!]
-}
-
-"""
-An edge in a connection.
-"""
-type ConversationEdge {
-  "The item at the end of the edge."
-  node: Conversation!
-
-  "A cursor for use in pagination."
-  cursor: String!
-}
-
-"""
-Information about pagination in a connection.
-"""
-type PageInfo {
-  "When paginating forwards, the cursor to continue."
-  endCursor: String
-
-  "When paginating forwards, are there more items?"
-  hasNextPage: Boolean!
+  conversations: [Conversation!]!
 }
 
 """
@@ -86,18 +50,7 @@ type Conversation {
   id: ID!
 
   "Messages in the conversation."
-  messages: MessageConnection!
-}
-
-type MessageConnection {
-  pageInfo: PageInfo!
-  edges: [MessageEdge]
-  nodes: [Message!]
-}
-
-type MessageEdge {
-  node: Message!
-  cursor: String!
+  messages: [Message!]!
 }
 
 type Subscription {
@@ -176,6 +129,9 @@ type StartConversationPayload {
 """
 Input for the continueConversation mutation."""
 input ContinueConversationInput {
+  "The User ID of the conversation to continue."
+  userId: ID!
+
   "The ID of the conversation to continue."
   conversationId: ID!
 

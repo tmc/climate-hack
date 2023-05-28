@@ -10,6 +10,8 @@ import (
 
 // Input for the continueConversation mutation.
 type ContinueConversationInput struct {
+	// The User ID of the conversation to continue.
+	UserID string `json:"userId"`
 	// The ID of the conversation to continue.
 	ConversationID string `json:"conversationId"`
 	// The message to send in the conversation.
@@ -27,25 +29,7 @@ type Conversation struct {
 	// Unique identifier for the conversation.
 	ID string `json:"id"`
 	// Messages in the conversation.
-	Messages *MessageConnection `json:"messages"`
-}
-
-// A connection to a list of items.
-type ConversationConnection struct {
-	// Information to aid in pagination.
-	PageInfo *PageInfo `json:"pageInfo"`
-	// A list of edges.
-	Edges []*ConversationEdge `json:"edges,omitempty"`
-	// A flattened list of the nodes.
-	Nodes []*Conversation `json:"nodes,omitempty"`
-}
-
-// An edge in a connection.
-type ConversationEdge struct {
-	// The item at the end of the edge.
-	Node *Conversation `json:"node"`
-	// A cursor for use in pagination.
-	Cursor string `json:"cursor"`
+	Messages []*Message `json:"messages"`
 }
 
 // Input for the informNonBeliver mutation.
@@ -76,25 +60,6 @@ type Message struct {
 	Role *MessageRole `json:"role,omitempty"`
 }
 
-type MessageConnection struct {
-	PageInfo *PageInfo      `json:"pageInfo"`
-	Edges    []*MessageEdge `json:"edges,omitempty"`
-	Nodes    []*Message     `json:"nodes,omitempty"`
-}
-
-type MessageEdge struct {
-	Node   *Message `json:"node"`
-	Cursor string   `json:"cursor"`
-}
-
-// Information about pagination in a connection.
-type PageInfo struct {
-	// When paginating forwards, the cursor to continue.
-	EndCursor *string `json:"endCursor,omitempty"`
-	// When paginating forwards, are there more items?
-	HasNextPage bool `json:"hasNextPage"`
-}
-
 // Input for the startConversation mutation.
 type StartConversationInput struct {
 	// The phone number to start a conversation with.
@@ -116,7 +81,7 @@ type User struct {
 	// User's phone number.
 	Phone string `json:"phone"`
 	// Conversations the user has been part of.
-	Messages *ConversationConnection `json:"messages"`
+	Conversations []*Conversation `json:"conversations"`
 }
 
 // The role of the message sender.
