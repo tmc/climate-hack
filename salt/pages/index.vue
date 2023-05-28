@@ -192,7 +192,7 @@
 
           <!-- Form -->
           <div v-else-if="form_active" class="max-w-4xl mx-auto pt-12">
-            <SignupNonBeliever />
+            <SignupNonBeliever @form-submit="handleFormSubmit" />
           </div>
         </transition>
 
@@ -230,6 +230,15 @@ const { data } = await useAsyncQuery(query, variables);
 const welcome_active = ref(true);
 const about_active = ref(false);
 const form_active = ref(false);
+
+// Other data here
+let submittedFormData = ref(null);
+
+const handleFormSubmit = (formData) => {
+  submittedFormData.value = formData;
+  // Do whatever you need with the data here
+  console.log(formData);
+};
 </script>
 
 <style scoped>
