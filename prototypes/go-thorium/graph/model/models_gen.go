@@ -34,6 +34,8 @@ type Conversation struct {
 
 // Input for the informNonBeliver mutation.
 type InformNonBeliverInput struct {
+	// The name of the non-believer.
+	Name string `json:"name"`
 	// The phone number of the non-believer.
 	Phone string `json:"phone"`
 	// Any special considerations for this message.
