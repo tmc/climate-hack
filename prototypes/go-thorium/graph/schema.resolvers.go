@@ -15,6 +15,8 @@ func (r *mutationResolver) InformNonBeliver(ctx context.Context, input model.Inf
 	_id++
 	fact := r.service.GetInitialThoriumFact(ctx)
 	// TODO: we should probably have an easy way to disable sending SMS
+	fmt.Println("oi")
+
 	if err := r.service.SendSMS(ctx, input.Phone, fact); err != nil {
 		return nil, err
 	}
