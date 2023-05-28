@@ -26,7 +26,7 @@ func NewService(llm llms.ChatLLM, redisClient *redis.Client) *Service {
 	return &Service{
 		llm:         llm,
 		redisClient: redisClient,
-		Repository:  newInMemoryRepository(),
+		Repository:  newRedisRepository(),
 	}
 }
 
