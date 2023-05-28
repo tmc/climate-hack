@@ -3,7 +3,6 @@ This is the GraphQL schema for ThoriumFacts. It defines the
 types and queries available to the client, and is used to
 generate the API's documentation.
 """
-
 type Query {
   """
   Fetches the current user.
@@ -25,7 +24,9 @@ type Mutation {
   """
   Continues an existing conversation.
   """
-  continueConversation(input: ContinueConversationInput!): ContinueConversationPayload!
+  continueConversation(
+    input: ContinueConversationInput!
+  ): ContinueConversationPayload!
 }
 
 """
@@ -58,6 +59,7 @@ type Subscription {
   Subscribes to new messages in a conversation.
   """
   messageAdded(conversationId: ID!): Message!
+  conversation(conversationId: ID!): Conversation!
 }
 
 """
@@ -92,6 +94,9 @@ enum MessageRole {
 Input for the informNonBeliver mutation.
 """
 input InformNonBeliverInput {
+  "The name of the non-believer."
+  name: String!
+
   "The phone number of the non-believer."
   phone: String!
 
@@ -127,7 +132,8 @@ type StartConversationPayload {
 }
 
 """
-Input for the continueConversation mutation."""
+Input for the continueConversation mutation.
+"""
 input ContinueConversationInput {
   "The User ID of the conversation to continue."
   userId: ID!
@@ -151,4 +157,3 @@ type ContinueConversationPayload {
 A custom scalar type for DateTime values.
 """
 scalar DateTime
-
