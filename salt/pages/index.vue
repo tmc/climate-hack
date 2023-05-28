@@ -200,7 +200,7 @@ const sendTextMutation = gql`
   }
 `;
 
-const { mutate: sendText } = useMutation(sendTextMutation);
+const { mutate: sendText, onDone } = useMutation(sendTextMutation);
 
 // form_active
 const active_page = ref("welcome");
@@ -218,6 +218,8 @@ const handleFormSubmit = async (formData) => {
   sendText(variables);
   active_page.value = "conversation";
 };
+
+
 </script>
 
 <style scoped>
