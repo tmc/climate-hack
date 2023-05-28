@@ -8,14 +8,13 @@ import (
 	"context"
 	"fmt"
 	"go-thorium/graph/model"
-	"go-thorium/thoriumfacts"
 )
 
 // InformNonBeliver is the resolver for the informNonBeliver field.
 func (r *mutationResolver) InformNonBeliver(ctx context.Context, input model.InformNonBeliverInput) (*model.InformNonBeliverPayload, error) {
 	_id++
-	fact := thoriumfacts.GetThoriumFact()
-	thoriumfacts.SendSMS(input.Phone, fact)
+	fact := r.service.GetThoriumFact(ctx)
+	r.service.SendSMS(ctx, input.Phone, fact)
 	return &model.InformNonBeliverPayload{
 		User: &model.User{
 			ID:    fmt.Sprint(_id),

@@ -1,7 +1,11 @@
 package graph
 
-// This file will not be regenerated automatically.
-//
-// It serves as dependency injection for your app, add any dependencies you require here.
+import "go-thorium/thoriumfacts"
 
-type Resolver struct{}
+type Resolver struct {
+	service *thoriumfacts.Service
+}
+
+func NewResolver(service *thoriumfacts.Service) *Resolver {
+	return &Resolver{service}
+}

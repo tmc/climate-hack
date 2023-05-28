@@ -26,3 +26,7 @@ lint:
 .PHONY: test
 test:
 	go test -v ./...
+
+.PHONY: run-redis
+run-redis: ## Run redis and RedisInsight
+	docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
