@@ -156,7 +156,29 @@
             v-else-if="active_page == 'conversation'"
             class="max-w-6xl mx-auto pt-12"
           >
-            <Conversation id="data.informNonBeliver.conversation.id" />
+          <div class="px-8">
+    <h2 class="text-base font-semibold leading-7 text-white">
+      ThoriumGPT's Conversation with x
+    </h2>
+    <!-- <p class="mt-1 text-sm leading-6 text-gray-400">
+          lorem
+        </p> -->
+    <div class="flex flex-col w-full justify-center space-y-4 mt-8">
+      <div class="grid grid-cols-6">
+        <div class="bg-gray-700 px-4 py-2 col-span-4 rounded">
+          <h4 class="text-sm text-gray-400">user</h4>
+          <p>Lorem Ipsum Dolor sit salt reactor.</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-6">
+        <div class="col-start-2 col-span-4 bg-gray-800 px-4 py-2 rounded">
+          <h4 class="text-sm text-gray-400">ThoriumGPT</h4>
+          <p>Lorem Ipsum Dolor sit salt reactor.</p>
+          ID: {{ id }}
+        </div>
+      </div>
+    </div>
+  </div>
           </div>
         </transition>
 
@@ -195,6 +217,10 @@ const sendTextMutation = gql`
     informNonBeliver(input: { phone: $phone, name: $name, specialConsiderations: $specialConsiderations }) {
       conversation {
         id
+        messages {
+          body
+          role
+        }
       }
     }
   }
@@ -207,17 +233,20 @@ const active_page = ref("welcome");
 
 // Other data here
 let submittedFormData = ref(null);
+let id = ref(null);
 
 const handleFormSubmit = async (formData) => {
   submittedFormData.value = formData;
   const variables = {
-    phone: "9196275548",
-    name: "allison",
+    phone: formData.phone,
+    name: formData.name,
     specialConsiderations: formData.other_info
   };
   let data = await sendText(variables);
   console.log(data)
-  console.log(data.informNonBeliver)
+  console.log(data.data.informNonBeliver)
+  id.value = data.data.informNonBeliver.conversation.id
+  console.log(id)
   active_page.value = "conversation";
 };
 
