@@ -14,6 +14,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
+	"github.com/rs/cors"
 	"github.com/tmc/langchaingo/llms/openai"
 	"go.uber.org/zap"
 )
@@ -58,14 +59,18 @@ func run() error {
 	resolver := graph.NewResolver(service)
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: resolver}))
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/graphql"))
-	http.Handle("/graphql", srv)
-	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+	mux := http.NewServeMux()
+
+	mux.Handle("/", playground.Handler("GraphQL playground", "/graphql"))
+	mux.Handle("/graphql", srv)
+	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	return http.ListenAndServe(":"+port, nil)
+
+	handler := cors.Default().Handler(mux)
+	return http.ListenAndServe(":"+port, handler)
 }
 
 func newRedisClient() (*redis.Client, error) {
