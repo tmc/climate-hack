@@ -61,36 +61,26 @@
                     class="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 ring-1 ring-white/10"
                   >
                     <div class="flex h-16 shrink-0 items-center">
-                      <!-- <img
-                        class="h-8 w-auto"
-                        src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                        alt="Your Company"
-                      /> -->
-                      <h1 class="text-xl text-white font-bold">
-                        Grant Accountability
+                      <h1
+                        @click="active_page == 'welcome'"
+                        class="text-xl text-white font-bold"
+                      >
+                        SALT
                       </h1>
                     </div>
                     <nav class="flex flex-1 flex-col">
                       <ul role="list" class="flex flex-1 flex-col gap-y-7">
                         <li>
                           <ul role="list" class="-mx-2 space-y-1">
-                            <li v-for="item in navigation" :key="item.name">
-                              <a
-                                :href="item.href"
-                                :class="[
-                                  item.current
-                                    ? 'bg-gray-800 text-white'
-                                    : 'text-gray-400 hover:text-white hover:bg-gray-800',
-                                  'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold',
-                                ]"
-                              >
-                                <component
-                                  :is="item.icon"
-                                  class="h-6 w-6 shrink-0"
-                                  aria-hidden="true"
-                                />
-                                {{ item.name }}
-                              </a>
+                            <li>
+                              <button @click="active_page = 'about'">
+                                About Salt Reactors
+                              </button>
+                            </li>
+                            <li>
+                              <button @click="active_page = 'form'">
+                                Start Convincing
+                              </button>
                             </li>
                           </ul>
                         </li>
@@ -107,22 +97,12 @@
         <div
           class="hidden xl:fixed xl:inset-y-0 xl:z-50 xl:flex xl:w-72 xl:flex-col"
         >
-          <!-- Sidebar component, swap this element with another sidebar if you like -->
           <div
             class="flex grow flex-col gap-y-5 overflow-y-auto bg-black/10 px-6 ring-1 ring-white/5"
           >
             <div class="flex h-16 shrink-0 items-center">
-              <!-- <img
-                class="h-8 w-auto"
-                src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                alt="Your Company"
-              /> -->
               <button
-                @click="
-                  about_active = false;
-                  form_active = false;
-                  welcome_active = true;
-                "
+                @click="active_page == 'welcome'"
                 class="text-xl text-white font-bold"
               >
                 SALT
@@ -132,43 +112,13 @@
               <ul role="list" class="flex flex-1 flex-col gap-y-7">
                 <li>
                   <ul role="list" class="-mx-2 space-y-1">
-                    <li v-for="item in navigation" :key="item.name">
-                      <a
-                        :href="item.href"
-                        :class="[
-                          item.current
-                            ? 'bg-gray-800 text-white'
-                            : 'text-gray-400 hover:text-white hover:bg-gray-800',
-                          'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold',
-                        ]"
-                      >
-                        <component
-                          :is="item.icon"
-                          class="h-6 w-6 shrink-0"
-                          aria-hidden="true"
-                        />
-                        {{ item.name }}
-                      </a>
-                    </li>
                     <li>
-                      <button
-                        @click="
-                          about_active = true;
-                          form_active = false;
-                          welcome_active = false;
-                        "
-                      >
+                      <button @click="active_page = 'about'">
                         About Salt Reactors
                       </button>
                     </li>
                     <li>
-                      <button
-                        @click="
-                          form_active = true;
-                          about_active = false;
-                          welcome_active = false;
-                        "
-                      >
+                      <button @click="active_page = 'form'">
                         Start Convincing
                       </button>
                     </li>
@@ -181,18 +131,32 @@
 
         <transition name="slide-fade" mode="out-in">
           <!-- Welcome -->
-          <div v-if="welcome_active" class="">
+          <div v-if="active_page == 'welcome'" class="">
             <Welcome />
           </div>
 
           <!-- About -->
-          <div v-else-if="about_active" class="max-w-4xl mx-auto pt-12">
+          <div
+            v-else-if="active_page == 'about'"
+            class="max-w-4xl mx-auto pt-12"
+          >
             <AboutSaltReactors />
           </div>
 
           <!-- Form -->
-          <div v-else-if="form_active" class="max-w-4xl mx-auto pt-12">
+          <div
+            v-else-if="active_page == 'form'"
+            class="max-w-4xl mx-auto pt-12"
+          >
             <SignupNonBeliever @form-submit="handleFormSubmit" />
+          </div>
+
+          <!-- Conversation -->
+          <div
+            v-else-if="active_page == 'conversation'"
+            class="max-w-4xl mx-auto pt-12"
+          >
+            <Conversation />
           </div>
         </transition>
 
@@ -227,9 +191,7 @@ const variables = { limit: 5 };
 const { data } = await useAsyncQuery(query, variables);
 
 // form_active
-const welcome_active = ref(true);
-const about_active = ref(false);
-const form_active = ref(false);
+const active_page = ref("welcome");
 
 // Other data here
 let submittedFormData = ref(null);
@@ -238,6 +200,7 @@ const handleFormSubmit = (formData) => {
   submittedFormData.value = formData;
   // Do whatever you need with the data here
   console.log(formData);
+  active_page.value = "conversation";
 };
 </script>
 
