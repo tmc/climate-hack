@@ -10,6 +10,10 @@ run-dev:
 	command -v wgo || go install github.com/bokwoon95/wgo@latest
 	wgo run .
 
+.PHONY: generate
+generate:
+	go generate ./...
+
 .PHONY: deps
 deps:
 	command -v go || brew install go

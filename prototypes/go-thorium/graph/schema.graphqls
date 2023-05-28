@@ -1,0 +1,23 @@
+# ThoriumFacts Schema
+
+type Mutation {
+  informNonBeliver(input: InformNonBeliverInput!): InformNonBeliverPayload!
+}
+
+type Query {
+  me: User!
+}
+
+type User {
+  id: ID!
+  phone: String!
+}
+
+input InformNonBeliverInput {
+  phone: String!
+}
+
+type InformNonBeliverPayload {
+  user: User!
+  message: String!
+}

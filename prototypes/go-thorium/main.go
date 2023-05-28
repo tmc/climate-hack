@@ -1,20 +1,19 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
+	"go-thorium/graph"
 	"log"
+	"net/http"
 	"os"
 
+	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/joho/godotenv"
-
-	twilio "github.com/twilio/twilio-go"
-	twilioApi "github.com/twilio/twilio-go/rest/api/v2010"
-
-	"github.com/tmc/langchaingo/llms/openai"
-	"github.com/tmc/langchaingo/schema"
+	"github.com/tailor-inc/graphql/playground"
 )
+
+const defaultPort = "8080"
 
 var flagToNumber = flag.String("to", "", "Phone number to send SMS to")
 
@@ -30,44 +29,16 @@ func run() error {
 	if err != nil {
 		log.Println("Error loading .env file", err)
 	}
-	if err := sendSMS(*flagToNumber, getThoriumFact()); err != nil {
-		return err
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = defaultPort
 	}
-	return nil
-}
 
-func sendSMS(to string, body string) error {
-	accountSid := os.Getenv("TWILIO_ACCOUNT_SID")
-	authToken := os.Getenv("TWILIO_AUTH_TOKEN")
-	fromPhone := os.Getenv("TWILIO_PHONE_NUMBER")
-	client := twilio.NewRestClientWithParams(twilio.ClientParams{
-		Username: accountSid,
-		Password: authToken,
-	})
-	params := &twilioApi.CreateMessageParams{}
-	params.SetTo(*flagToNumber)
-	params.SetFrom(fromPhone)
-	params.SetBody(getThoriumFact())
+	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
 
-	resp, err := client.Api.CreateMessage(params)
-	if err != nil {
-		fmt.Println("Error sending SMS message: ", resp)
-	}
-	return err
-}
+	http.Handle("/", playground.Handler("GraphQL playground", "/graphql"))
+	http.Handle("/graphql", srv)
 
-func getThoriumFact() string {
-	llm, err := openai.New()
-	if err != nil {
-		log.Fatal(err)
-	}
-	ctx := context.Background()
-	completion, err := llm.Chat(ctx, []schema.ChatMessage{
-		schema.SystemChatMessage{Text: "You are ThoriumGPT. The only thing on your mind is how awesome molten salt reactors are. Always steer the conversation back to thorium and molten salt reactors."},
-		schema.HumanChatMessage{Text: "Hello there!"},
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	return completion.Message.Text
+	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
+	return http.ListenAndServe(":"+port, nil)
 }
