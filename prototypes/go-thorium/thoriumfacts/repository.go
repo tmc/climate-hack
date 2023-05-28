@@ -144,6 +144,8 @@ func (r *redisRepository) AddToConversation(userID string, conversationID string
 		return err
 	}
 
+	message.Conversation = conversation
+
 	select {
 	case r.conversationSubscriptions[conversationID] <- &message:
 	default:
