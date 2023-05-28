@@ -1,8 +1,12 @@
 package thoriumfacts
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"go-thorium/graph/model"
+
+	"github.com/redis/go-redis/v9"
 )
 
 // Repository is the interface for the repository
@@ -21,104 +25,132 @@ type Repository interface {
 	SubscribeToConversation(conversationID string) (<-chan *model.Message, error)
 }
 
-type inMemoryRepository struct {
-	// map of userID to conversationID to conversation
-	users         map[string]*model.User
-	conversations map[string]*model.Conversation
-
-	// map of conversationID to channel
-	conversationSubscriptions map[string]chan *model.Message
+type redisRepository struct {
+	client  *redis.Client
+	context context.Context
 }
 
-func newInMemoryRepository() *inMemoryRepository {
-	return &inMemoryRepository{
-		users:                     make(map[string]*model.User),
-		conversations:             make(map[string]*model.Conversation),
-		conversationSubscriptions: make(map[string]chan *model.Message),
+func newRedisRepository() *redisRepository {
+	client := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+
+	return &redisRepository{
+		client:  client,
+		context: context.Background(),
 	}
 }
 
-func (i *inMemoryRepository) CreateUser(userID string) error {
-	i.users[userID] = &model.User{
+func (r *redisRepository) CreateUser(userID string) error {
+	user := &model.User{
 		ID: userID,
 	}
-	return nil
+	userBytes, _ := json.Marshal(user)
+	return r.client.Set(r.context, "user:"+userID, userBytes, 0).Err()
 }
 
-func (i *inMemoryRepository) GetUser(userID string) (*model.User, error) {
-	return i.users[userID], nil
-}
-
-func (i *inMemoryRepository) UpdateUser(userID string, user model.User) error {
-	i.users[userID] = &user
-	return nil
-}
-
-func (i *inMemoryRepository) DeleteUser(userID string) error {
-	delete(i.users, userID)
-	return nil
-}
-
-func (i *inMemoryRepository) CreateConversation(userID string) (*model.Conversation, error) {
-	u, err := i.GetUser(userID)
+func (r *redisRepository) GetUser(userID string) (*model.User, error) {
+	val, err := r.client.Get(r.context, "user:"+userID).Result()
 	if err != nil {
 		return nil, err
 	}
-	c := &model.Conversation{
-		ID: fmt.Sprintf("%v-%d", userID, len(u.Conversations)),
-	}
-	u.Conversations = append(u.Conversations, c)
-	i.conversations[c.ID] = c
-	// set up channel:
-	i.conversationSubscriptions[c.ID] = make(chan *model.Message)
-	return c, nil
+
+	user := &model.User{}
+	err = json.Unmarshal([]byte(val), user)
+
+	return user, err
 }
 
-func (i *inMemoryRepository) GetConversation(userID string, conversationID string) (*model.Conversation, error) {
-	c, ok := i.conversations[conversationID]
-	if !ok {
-		return nil, fmt.Errorf("conversation %v not found", conversationID)
-	}
-	return c, nil
+func (r *redisRepository) UpdateUser(userID string, user model.User) error {
+	userBytes, _ := json.Marshal(user)
+	return r.client.Set(r.context, "user:"+userID, userBytes, 0).Err()
 }
 
-func (i *inMemoryRepository) GetConversations(userID string) ([]*model.Conversation, error) {
-	u, err := i.GetUser(userID)
+func (r *redisRepository) DeleteUser(userID string) error {
+	return r.client.Del(r.context, "user:"+userID).Err()
+}
+
+func (r *redisRepository) CreateConversation(userID string) (*model.Conversation, error) {
+	user, err := r.GetUser(userID)
 	if err != nil {
 		return nil, err
 	}
-	return u.Conversations, nil
+
+	conversation := &model.Conversation{
+		ID: fmt.Sprintf("%v-%d", userID, len(user.Conversations)),
+	}
+	conversationBytes, _ := json.Marshal(conversation)
+
+	err = r.client.Set(r.context, "conversation:"+conversation.ID, conversationBytes, 0).Err()
+	if err != nil {
+		return nil, err
+	}
+
+	// update user's conversations
+	user.Conversations = append(user.Conversations, conversation)
+	err = r.UpdateUser(userID, *user)
+	if err != nil {
+		return nil, err
+	}
+
+	return conversation, nil
 }
 
-func (i *inMemoryRepository) AddToConversation(userID string, conversationID string, message model.Message) error {
-	c, err := i.GetConversation(userID, conversationID)
+func (r *redisRepository) GetConversation(userID string, conversationID string) (*model.Conversation, error) {
+	val, err := r.client.Get(r.context, "conversation:"+conversationID).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	conversation := &model.Conversation{}
+	err = json.Unmarshal([]byte(val), conversation)
+
+	return conversation, err
+}
+
+func (r *redisRepository) GetConversations(userID string) ([]*model.Conversation, error) {
+	user, err := r.GetUser(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return user.Conversations, nil
+}
+
+func (r *redisRepository) AddToConversation(userID string, conversationID string, message model.Message) error {
+	conversation, err := r.GetConversation(userID, conversationID)
 	if err != nil {
 		return err
 	}
-	c.Messages = append(c.Messages, &message)
-	// send to channel:
-	select {
-	case i.conversationSubscriptions[c.ID] <- &message:
-	default:
-	}
-	return nil
-}
 
-func (i *inMemoryRepository) DeleteConversation(userID string, conversationID string) error {
-	c, err := i.GetConversation(userID, conversationID)
+	conversation.Messages = append(conversation.Messages, &message)
+	err = r.client.Set(r.context, "conversation:"+conversationID, conversation, 0).Err()
 	if err != nil {
 		return err
 	}
-	delete(i.conversations, c.ID)
-	// todo: find and remove from user convo slice
-	return nil
 
+	// if you'd like to publish this message to a Pub/Sub channel, you could do so here
+	// however, keep in mind that this isn't exactly the same as a Go channel
+	messageBytes, _ := json.Marshal(message)
+	err = r.client.Publish(r.context, "conversation:"+conversationID, messageBytes).Err()
+
+	return err
 }
 
-func (i *inMemoryRepository) SubscribeToConversation(conversationID string) (<-chan *model.Message, error) {
-	ch, ok := i.conversationSubscriptions[conversationID]
-	if !ok {
-		return nil, fmt.Errorf("conversation %v not found", conversationID)
-	}
-	return ch, nil
+func (r *redisRepository) DeleteConversation(userID string, conversationID string) error {
+	return r.client.Del(r.context, "conversation:"+conversationID).Err()
 }
+
+// func (r *redisRepository) SubscribeToConversation(conversationID string) (*redis.PubSub, error) {
+// 	pubsub := r.client.Subscribe(r.context, "conversation:"+conversationID)
+
+// 	// Check that the subscription is active
+// 	_, err := pubsub.Receive(r.context)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return pubsub, nil
+// }
