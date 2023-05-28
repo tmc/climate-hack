@@ -13,7 +13,7 @@ import (
 // InformNonBeliver is the resolver for the informNonBeliver field.
 func (r *mutationResolver) InformNonBeliver(ctx context.Context, input model.InformNonBeliverInput) (*model.InformNonBeliverPayload, error) {
 	_id++
-	fact := r.service.GetThoriumFact(ctx)
+	fact := r.service.GetInitialThoriumFact(ctx)
 	// TODO: we should probably have an easy way to disable sending SMS
 	if err := r.service.SendSMS(ctx, input.Phone, fact); err != nil {
 		return nil, err
@@ -23,8 +23,10 @@ func (r *mutationResolver) InformNonBeliver(ctx context.Context, input model.Inf
 	if err != nil {
 		return nil, fmt.Errorf("could not create conversation: %w", err)
 	}
+	botRole := model.MessageRoleBot
 	if err := r.service.Repository.AddToConversation(input.Phone, c.ID, model.Message{
 		Body: fact,
+		Role: &botRole,
 	}); err != nil {
 		return nil, fmt.Errorf("could not add message to conversation: %w", err)
 	}
