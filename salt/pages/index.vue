@@ -209,22 +209,32 @@
 <script setup>
 import { ref } from "vue";
 
+// const query = gql`
+//   query {
+//     me {
+//       isActive
+//       grants {
+//         title
+//         description
+//         id
+//         ownerId
+//       }
+//     }
+//   }
+// `;
+// const variables = { limit: 5 };
+
+// const { data } = await useAsyncQuery(query, variables);
+
 const query = gql`
-  query {
-    me {
-      isActive
-      grants {
-        title
-        description
+  mutation informNonBeliever($phone: String!) {
+    informNonBeliver(input: {phone: $phone}) {
+      conversation {
         id
-        ownerId
       }
     }
   }
 `;
-const variables = { limit: 5 };
-
-const { data } = await useAsyncQuery(query, variables);
 
 // form_active
 const welcome_active = ref(true);
@@ -234,10 +244,15 @@ const form_active = ref(false);
 // Other data here
 let submittedFormData = ref(null);
 
-const handleFormSubmit = (formData) => {
+const handleFormSubmit = async (formData) => {
   submittedFormData.value = formData;
+  const variables = {
+    phone: formData.phone
+  }
+  console.log(query)
+  const { mutate } = await useMutation(query, variables)
   // Do whatever you need with the data here
-  console.log(formData);
+  console.log(mutate);
 };
 </script>
 
