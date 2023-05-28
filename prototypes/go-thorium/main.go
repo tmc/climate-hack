@@ -38,6 +38,9 @@ func run() error {
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/graphql"))
 	http.Handle("/graphql", srv)
+	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	return http.ListenAndServe(":"+port, nil)
