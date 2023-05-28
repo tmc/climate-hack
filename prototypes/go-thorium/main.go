@@ -66,6 +66,7 @@ func run() error {
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
+	mux.HandleFunc("/twilio/sms", service.HandleIncomingTwilioSMS)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 

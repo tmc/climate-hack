@@ -144,7 +144,10 @@ func (r *redisRepository) AddToConversation(userID string, conversationID string
 		return err
 	}
 
-	r.conversationSubscriptions[conversationID] <- &message
+	select {
+	case r.conversationSubscriptions[conversationID] <- &message:
+	default:
+	}
 
 	// if you'd like to publish this message to a Pub/Sub channel, you could do so here
 	// however, keep in mind that this isn't exactly the same as a Go channel

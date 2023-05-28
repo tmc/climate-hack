@@ -64,6 +64,8 @@ github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/stretchr/testify v1.8.2 h1:+h33VjcLVPDHtOdpUCuF+7gSuG3yGIftsP1YvFihtJ8=
 github.com/tmc/langchaingo v0.0.0-20230527005107-54c6782c6080 h1:GcQGGqicK1wANkpx9K97RFODNT0iL1NQ1+66EvQOwY0=
 github.com/tmc/langchaingo v0.0.0-20230527005107-54c6782c6080/go.mod h1:6l1WoyqVDwkv7cFlY3gfcTv8yVowVyuutKv8PGlQCWI=
+github.com/tmc/langchaingo v0.0.0-20230528164956-862ec4955c77 h1:QD8VgNNW0uulcYvmSghKhTIFOPY58zKt3zI8nN3KYRg=
+github.com/tmc/langchaingo v0.0.0-20230528164956-862ec4955c77/go.mod h1:6l1WoyqVDwkv7cFlY3gfcTv8yVowVyuutKv8PGlQCWI=
 github.com/twilio/twilio-go v1.7.1 h1:wghxGqc3ZDMc9E/OkvopizU/aXzdIm/0fDknagpAq3k=
 github.com/twilio/twilio-go v1.7.1/go.mod h1:tdnfQ5TjbewoAu4lf9bMsGvfuJ/QU9gYuv9yx3TSIXU=
 github.com/urfave/cli/v2 v2.24.4 h1:0gyJJEBYtCV87zI/x2nZCPyDxD51K6xM8SkwjHFCNEU=
