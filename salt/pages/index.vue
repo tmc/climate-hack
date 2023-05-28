@@ -154,7 +154,7 @@
           <!-- Conversation -->
           <div
             v-else-if="active_page == 'conversation'"
-            class="max-w-4xl mx-auto pt-12"
+            class="max-w-6xl mx-auto pt-12"
           >
             <Conversation />
           </div>
