@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/99designs/gqlgen v0.17.31
 	github.com/joho/godotenv v1.5.1
+	github.com/oklog/ulid v1.3.1
 	github.com/redis/go-redis/v9 v9.0.4
 	github.com/rs/cors v1.9.0
 	github.com/tmc/langchaingo v0.0.0-20230527005107-54c6782c6080

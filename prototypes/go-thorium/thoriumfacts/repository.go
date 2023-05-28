@@ -39,8 +39,9 @@ func newRedisRepository() *redisRepository {
 	})
 
 	return &redisRepository{
-		client:  client,
-		context: context.Background(),
+		client:                    client,
+		context:                   context.Background(),
+		conversationSubscriptions: make(map[string]chan *model.Message),
 	}
 }
 
@@ -143,6 +144,8 @@ func (r *redisRepository) AddToConversation(userID string, conversationID string
 		return err
 	}
 
+	r.conversationSubscriptions[conversationID] <- &message
+
 	// if you'd like to publish this message to a Pub/Sub channel, you could do so here
 	// however, keep in mind that this isn't exactly the same as a Go channel
 	messageBytes, _ := json.Marshal(message)
@@ -158,7 +161,8 @@ func (r *redisRepository) DeleteConversation(userID string, conversationID strin
 func (r *redisRepository) SubscribeToConversation(conversationID string) (<-chan *model.Message, error) {
 	ch, ok := r.conversationSubscriptions[conversationID]
 	if !ok {
-		return nil, fmt.Errorf("conversation %v not found", conversationID)
+		ch = make(chan *model.Message)
+		r.conversationSubscriptions[conversationID] = ch
 	}
 	return ch, nil
 }
